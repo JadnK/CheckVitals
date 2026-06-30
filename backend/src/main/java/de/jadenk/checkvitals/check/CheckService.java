@@ -3,6 +3,7 @@ package de.jadenk.checkvitals.check;
 import de.jadenk.checkvitals.monitor.Monitor;
 import de.jadenk.checkvitals.monitor.MonitorRepository;
 import de.jadenk.checkvitals.monitor.MonitorStatus;
+import de.jadenk.checkvitals.webhook.WebhookService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +25,13 @@ public class CheckService {
     @Value("${checkvitals.check.lagging-threshold-ms:1000}")
     private long laggingThresholdMs;
 
+    private final WebhookService webhookService;
 
-    public CheckService(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository) {
+
+    public CheckService(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository, WebhookService webhookService) {
         this.monitorRepository = monitorRepository;
         this.checkResultRepository = checkResultRepository;
+        this.webhookService = webhookService;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .followRedirects(HttpClient.Redirect.NORMAL)
@@ -48,6 +52,7 @@ public class CheckService {
 
     public CheckResult checkMonitor(Monitor monitor) {
         long startTime = System.nanoTime();
+        MonitorStatus previousStatus = monitor.getCurrentStatus();
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -81,7 +86,11 @@ public class CheckService {
             monitorRepository.save(monitor);
 
             CheckResult result = new CheckResult(monitor, status, responseTimeMs, errorMessage);
-            return checkResultRepository.save(result);
+            CheckResult savedResult = checkResultRepository.save(result);
+
+            webhookService.sendStatusChange(monitor, previousStatus, status);
+
+            return savedResult;
 
         } catch (Exception exception) {
             long responseTimeMs = (System.nanoTime() - startTime) / 1_000_000;
@@ -98,7 +107,11 @@ public class CheckService {
                     exception.getMessage()
             );
 
-            return checkResultRepository.save(result);
+            CheckResult savedResult = checkResultRepository.save(result);
+
+            webhookService.sendStatusChange(monitor, previousStatus, MonitorStatus.OFFLINE);
+
+            return savedResult;
         }
     }
 }

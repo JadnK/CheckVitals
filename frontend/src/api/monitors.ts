@@ -48,3 +48,28 @@ export async function getCheckResults(id: number): Promise<CheckResult[]> {
 
   return response.json();
 }
+
+export async function updateWebhookSettings(
+  id: number,
+  settings: {
+    webhookEnabled: boolean;
+    webhookUrl: string;
+    notifyOnOffline: boolean;
+    notifyOnLagging: boolean;
+    notifyOnOnline: boolean;
+  }
+): Promise<Monitor> {
+  const response = await fetch(`${API_BASE_URL}/monitors/${id}/webhook`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(settings),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update webhook settings");
+  }
+
+  return response.json();
+}

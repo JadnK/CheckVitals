@@ -38,6 +38,7 @@ function App() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
+  const [webhookMonitor, setWebhookMonitor] = useState<Monitor | null>(null);
 
   async function loadMonitors() {
     try {
@@ -241,7 +242,12 @@ function App() {
                     >
                       Details
                     </button>
-
+                    <button
+                      onClick={() => setWebhookMonitor(monitor)}
+                      className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Webhook
+                    </button>
                     <button
                       onClick={() => handleDelete(monitor.id)}
                       className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"

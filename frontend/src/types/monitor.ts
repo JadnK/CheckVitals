@@ -8,6 +8,12 @@ export type Monitor = {
   lastResponseTimeMs: number | null;
   lastCheckedAt: string | null;
   createdAt: string;
+
+  webhookUrl: string | null;
+  webhookEnabled: boolean;
+  notifyOnOffline: boolean;
+  notifyOnLagging: boolean;
+  notifyOnOnline: boolean;
 };
 
 export type CheckResult = {

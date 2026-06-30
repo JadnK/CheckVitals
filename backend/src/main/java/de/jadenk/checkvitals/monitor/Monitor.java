@@ -18,6 +18,21 @@ public class Monitor {
     @Column(nullable = false, length = 500)
     private String url;
 
+    @Column(length = 1000)
+    private String webhookUrl;
+
+    @Column(nullable = false)
+    private boolean webhookEnabled = false;
+
+    @Column(nullable = false)
+    private boolean notifyOnOffline = true;
+
+    @Column(nullable = false)
+    private boolean notifyOnLagging = true;
+
+    @Column(nullable = false)
+    private boolean notifyOnOnline = true;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MonitorStatus currentStatus = MonitorStatus.PENDING;
@@ -60,6 +75,46 @@ public class Monitor {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getWebhookUrl() {
+        return webhookUrl;
+    }
+
+    public boolean isWebhookEnabled() {
+        return webhookEnabled;
+    }
+
+    public boolean isNotifyOnOffline() {
+        return notifyOnOffline;
+    }
+
+    public boolean isNotifyOnLagging() {
+        return notifyOnLagging;
+    }
+
+    public boolean isNotifyOnOnline() {
+        return notifyOnOnline;
+    }
+
+    public void setWebhookUrl(String webhookUrl) {
+        this.webhookUrl = webhookUrl;
+    }
+
+    public void setWebhookEnabled(boolean webhookEnabled) {
+        this.webhookEnabled = webhookEnabled;
+    }
+
+    public void setNotifyOnOffline(boolean notifyOnOffline) {
+        this.notifyOnOffline = notifyOnOffline;
+    }
+
+    public void setNotifyOnLagging(boolean notifyOnLagging) {
+        this.notifyOnLagging = notifyOnLagging;
+    }
+
+    public void setNotifyOnOnline(boolean notifyOnOnline) {
+        this.notifyOnOnline = notifyOnOnline;
     }
 
     public MonitorStatus getCurrentStatus() {

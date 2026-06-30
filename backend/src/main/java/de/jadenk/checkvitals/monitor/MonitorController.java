@@ -71,4 +71,23 @@ public class MonitorController {
         List<CheckResult> checks = checkResultRepository.findTop20ByMonitorIdOrderByCheckedAtDesc(id);
         return ResponseEntity.ok(checks);
     }
+
+    @PutMapping("/monitors/{id}/webhook")
+    public ResponseEntity<Monitor> updateWebhookSettings(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateWebhookSettingsRequest request
+    ) {
+        return monitorRepository.findById(id)
+                .map(monitor -> {
+                    monitor.setWebhookEnabled(request.webhookEnabled());
+                    monitor.setWebhookUrl(request.webhookUrl());
+                    monitor.setNotifyOnOffline(request.notifyOnOffline());
+                    monitor.setNotifyOnLagging(request.notifyOnLagging());
+                    monitor.setNotifyOnOnline(request.notifyOnOnline());
+
+                    Monitor savedMonitor = monitorRepository.save(monitor);
+                    return ResponseEntity.ok(savedMonitor);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
