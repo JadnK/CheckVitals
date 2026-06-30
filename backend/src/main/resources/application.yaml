@@ -24,3 +24,4 @@ checkvitals:
     #300 Sekunden = 300000 ms
     interval-ms: 300000
     initial-delay-ms: 5000
+    lagging-threshold-ms: 1000

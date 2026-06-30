@@ -3,6 +3,7 @@ package de.jadenk.checkvitals.check;
 import de.jadenk.checkvitals.monitor.Monitor;
 import de.jadenk.checkvitals.monitor.MonitorRepository;
 import de.jadenk.checkvitals.monitor.MonitorStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -19,6 +20,10 @@ public class CheckService {
     private final MonitorRepository monitorRepository;
     private final CheckResultRepository checkResultRepository;
     private final HttpClient httpClient;
+
+    @Value("${checkvitals.check.lagging-threshold-ms:1000}")
+    private long laggingThresholdMs;
+
 
     public CheckService(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository) {
         this.monitorRepository = monitorRepository;
@@ -56,9 +61,15 @@ public class CheckService {
             long responseTimeMs = (System.nanoTime() - startTime) / 1_000_000;
             int statusCode = response.statusCode();
 
-            MonitorStatus status = statusCode >= 200 && statusCode < 400
-                    ? MonitorStatus.ONLINE
-                    : MonitorStatus.OFFLINE;
+            MonitorStatus status;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                status = responseTimeMs >= laggingThresholdMs
+                        ? MonitorStatus.LAGGING
+                        : MonitorStatus.ONLINE;
+            } else {
+                status = MonitorStatus.OFFLINE;
+            }
 
             String errorMessage = status == MonitorStatus.ONLINE
                     ? null
