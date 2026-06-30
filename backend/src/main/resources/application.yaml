@@ -20,5 +20,7 @@ spring:
 
 checkvitals:
   check:
-    interval-ms: 30000
+    #5 Minuten = 5 × 60 Sekunden = 300 Sekunden
+    #300 Sekunden = 300000 ms
+    interval-ms: 300000
     initial-delay-ms: 5000

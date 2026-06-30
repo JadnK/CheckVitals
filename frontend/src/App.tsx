@@ -1,7 +1,27 @@
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createMonitor, deleteMonitor, getMonitors } from "./api/monitors";
-import type { Monitor } from "./types/monitor";
+import type { Monitor, MonitorStatus } from "./types/monitor";
+
+function getStatusClasses(status: MonitorStatus) {
+  if (status === "ONLINE") {
+    return "border-emerald-700 bg-emerald-950 text-emerald-300";
+  }
+
+  if (status === "OFFLINE") {
+    return "border-red-700 bg-red-950 text-red-300";
+  }
+
+  return "border-zinc-700 bg-zinc-950 text-zinc-300";
+}
+
+function formatDate(value: string | null) {
+  if (!value) {
+    return "Never checked";
+  }
+
+  return new Date(value).toLocaleString();
+}
 
 function App() {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
@@ -29,7 +49,31 @@ function App() {
       window.clearInterval(interval);
     };
   }, []);
-  
+
+  const stats = useMemo(() => {
+    const total = monitors.length;
+    const online = monitors.filter((monitor) => monitor.currentStatus === "ONLINE").length;
+    const offline = monitors.filter((monitor) => monitor.currentStatus === "OFFLINE").length;
+    const unknown = monitors.filter((monitor) => monitor.currentStatus === "UNKNOWN").length;
+
+    const responseTimes = monitors
+      .map((monitor) => monitor.lastResponseTimeMs)
+      .filter((time): time is number => time !== null);
+
+    const averageResponseTime =
+      responseTimes.length === 0
+        ? null
+        : Math.round(responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length);
+
+    return {
+      total,
+      online,
+      offline,
+      unknown,
+      averageResponseTime,
+    };
+  }, [monitors]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -45,6 +89,8 @@ function App() {
   }
 
   async function handleDelete(id: number) {
+    setError("");
+
     try {
       await deleteMonitor(id);
       setMonitors((current) => current.filter((monitor) => monitor.id !== id));
@@ -55,14 +101,49 @@ function App() {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto max-w-5xl px-6 py-10">
-        <header className="mb-10">
-          <p className="mb-2 text-sm font-medium text-zinc-400">Dashboard</p>
-          <h1 className="text-4xl font-bold tracking-tight">UptimeWatch</h1>
-          <p className="mt-3 text-zinc-400">
-            Monitor websites and APIs from one clean dashboard.
-          </p>
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <header className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-2 text-sm font-medium text-zinc-400">Monitoring Dashboard</p>
+            <h1 className="text-4xl font-bold tracking-tight">UptimeWatch</h1>
+            <p className="mt-3 text-zinc-400">
+              Monitor websites and APIs from one clean dashboard.
+            </p>
+          </div>
+
+          <div className="rounded-full border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-400">
+            Auto-refresh every 15s
+          </div>
         </header>
+
+        <section className="mb-8 grid gap-4 md:grid-cols-5">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-400">Total</p>
+            <p className="mt-2 text-3xl font-bold">{stats.total}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-400">Online</p>
+            <p className="mt-2 text-3xl font-bold text-emerald-300">{stats.online}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-400">Offline</p>
+            <p className="mt-2 text-3xl font-bold text-red-300">{stats.offline}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-400">Unknown</p>
+            <p className="mt-2 text-3xl font-bold">{stats.unknown}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-400">Avg. Response</p>
+            <p className="mt-2 text-3xl font-bold">
+              {stats.averageResponseTime === null ? "—" : `${stats.averageResponseTime}ms`}
+            </p>
+          </div>
+        </section>
 
         <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
           <h2 className="mb-4 text-xl font-semibold">Add Monitor</h2>
@@ -115,15 +196,31 @@ function App() {
                   key={monitor.id}
                   className="flex flex-col gap-4 px-6 py-5 md:flex-row md:items-center md:justify-between"
                 >
-                  <div>
-                    <div className="flex items-center gap-3">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-3">
                       <h3 className="font-semibold">{monitor.name}</h3>
-                      <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
+
+                      <span
+                        className={`rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(
+                          monitor.currentStatus
+                        )}`}
+                      >
                         {monitor.currentStatus}
                       </span>
                     </div>
 
-                    <p className="mt-1 text-sm text-zinc-400">{monitor.url}</p>
+                    <p className="truncate text-sm text-zinc-400">{monitor.url}</p>
+
+                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-500">
+                      <span>
+                        Response:{" "}
+                        {monitor.lastResponseTimeMs === null
+                          ? "—"
+                          : `${monitor.lastResponseTimeMs}ms`}
+                      </span>
+
+                      <span>Last checked: {formatDate(monitor.lastCheckedAt)}</span>
+                    </div>
                   </div>
 
                   <button
