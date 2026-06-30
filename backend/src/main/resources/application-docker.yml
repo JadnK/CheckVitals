@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://database:5432/checkvitals
+    username: checkvitals
+    password: checkvitals
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+checkvitals:
+  check:
+    interval-ms: 300000
+    initial-delay-ms: 10000
