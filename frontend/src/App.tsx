@@ -38,7 +38,7 @@ function App() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const [webhookMonitor, setWebhookMonitor] = useState<Monitor | null>(null);
+  const [, setWebhookMonitor] = useState<Monitor | null>(null);
 
   async function loadMonitors() {
     try {
