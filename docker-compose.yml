@@ -6,8 +6,6 @@ services:
       POSTGRES_DB: checkvitals
       POSTGRES_USER: checkvitals
       POSTGRES_PASSWORD: checkvitals
-    ports:
-      - "5432:5432"
     volumes:
       - checkvitals_postgres_data:/var/lib/postgresql/data
 
@@ -19,8 +17,8 @@ services:
       - database
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
   frontend:
     build:
@@ -29,7 +27,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "7200:80"
 
 volumes:
   checkvitals_postgres_data:

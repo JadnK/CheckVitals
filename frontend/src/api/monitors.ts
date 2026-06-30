@@ -1,6 +1,6 @@
 import type { Monitor } from "../types/monitor";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = "/api";
 
 export async function getMonitors(): Promise<Monitor[]> {
   const response = await fetch(`${API_BASE_URL}/monitors`);
