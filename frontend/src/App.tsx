@@ -13,6 +13,14 @@ function getStatusClasses(status: MonitorStatus) {
     return "border-red-700 bg-red-950 text-red-300";
   }
 
+  if (status === "PENDING") {
+    return "border-orange-700 bg-orange-950 text-orange-300";
+  }
+
+  if (status === "LAGGING") {
+    return "border-amber-700 bg-amber-950 text-amber-300";
+  }
+
   return "border-zinc-700 bg-zinc-950 text-zinc-300";
 }
 
