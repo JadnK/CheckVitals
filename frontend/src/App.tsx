@@ -20,8 +20,16 @@ function App() {
 
   useEffect(() => {
     loadMonitors();
-  }, []);
 
+    const interval = window.setInterval(() => {
+      loadMonitors();
+    }, 15000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, []);
+  
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");

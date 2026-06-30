@@ -17,3 +17,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+checkvitals:
+  check:
+    interval-ms: 30000
+    initial-delay-ms: 5000
