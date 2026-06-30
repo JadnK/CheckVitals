@@ -208,11 +208,12 @@ Planned improvements:
 * Better error messages
 * Authentication
 * Email or Discord notifications
+* Headers for API-Requests
 * Public status page
 
 ## Screenshots
 
-Screenshots will be added soon.
+![CheckVitals Dashboard](screenshots/Dashboard.png)
 
 ## Author
 
