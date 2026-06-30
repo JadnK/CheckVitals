@@ -3,6 +3,7 @@ import { MonitorDetails } from "./components/MonitorDetails";
 import { useEffect, useMemo, useState } from "react";
 import { createMonitor, deleteMonitor, getMonitors } from "./api/monitors";
 import type { Monitor, MonitorStatus } from "./types/monitor";
+import { WebhookSettingsModal } from "./components/WebhookSettingsModal";
 
 function getStatusClasses(status: MonitorStatus) {
   if (status === "ONLINE") {
@@ -38,7 +39,7 @@ function App() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const [, setWebhookMonitor] = useState<Monitor | null>(null);
+  const [webhookMonitor, setWebhookMonitor] = useState<Monitor | null>(null);
 
   async function loadMonitors() {
     try {
@@ -268,6 +269,21 @@ function App() {
     onClose={() => setSelectedMonitor(null)}
   />
 )}
+    {webhookMonitor && (
+      <WebhookSettingsModal
+        monitor={webhookMonitor}
+        onClose={() => setWebhookMonitor(null)}
+        onSaved={(updatedMonitor) => {
+          setMonitors((current) =>
+            current.map((monitor) =>
+              monitor.id === updatedMonitor.id ? updatedMonitor : monitor
+            )
+          );
+
+          setWebhookMonitor(null);
+        }}
+      />
+    )}
     </main>
   );
 }
