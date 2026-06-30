@@ -1,5 +1,6 @@
 package de.jadenk.checkvitals.monitor;
 
+import de.jadenk.checkvitals.check.CheckResult;
 import de.jadenk.checkvitals.check.CheckResultRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,15 @@ public class MonitorController {
         monitorRepository.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/monitors/{id}/checks")
+    public ResponseEntity<List<CheckResult>> getMonitorChecks(@PathVariable Long id) {
+        if (!monitorRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<CheckResult> checks = checkResultRepository.findTop20ByMonitorIdOrderByCheckedAtDesc(id);
+        return ResponseEntity.ok(checks);
     }
 }

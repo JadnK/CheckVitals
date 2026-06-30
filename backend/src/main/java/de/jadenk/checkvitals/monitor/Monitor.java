@@ -20,7 +20,7 @@ public class Monitor {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MonitorStatus currentStatus = MonitorStatus.UNKNOWN;
+    private MonitorStatus currentStatus = MonitorStatus.PENDING;
 
     private Long lastResponseTimeMs;
 
@@ -36,7 +36,7 @@ public class Monitor {
     public Monitor(String name, String url) {
         this.name = name;
         this.url = url;
-        this.currentStatus = MonitorStatus.UNKNOWN;
+        this.currentStatus = MonitorStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -46,7 +46,7 @@ public class Monitor {
             createdAt = LocalDateTime.now();
         }
         if (currentStatus == null) {
-            currentStatus = MonitorStatus.UNKNOWN;
+            currentStatus = MonitorStatus.PENDING;
         }
     }
 

@@ -1,7 +1,7 @@
 package de.jadenk.checkvitals.monitor;
 
 public enum MonitorStatus {
-    UNKNOWN,
+    PENDING,
     ONLINE,
     OFFLINE,
     LAGGING

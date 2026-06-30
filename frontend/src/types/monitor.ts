@@ -1,4 +1,4 @@
-export type MonitorStatus = "UNKNOWN" | "ONLINE" | "OFFLINE";
+export type MonitorStatus = "PENDING" | "LAGGING" | "ONLINE" | "OFFLINE";
 
 export type Monitor = {
   id: number;
@@ -8,4 +8,12 @@ export type Monitor = {
   lastResponseTimeMs: number | null;
   lastCheckedAt: string | null;
   createdAt: string;
+};
+
+export type CheckResult = {
+  id: number;
+  status: MonitorStatus;
+  responseTimeMs: number | null;
+  errorMessage: string | null;
+  checkedAt: string;
 };

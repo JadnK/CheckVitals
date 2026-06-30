@@ -1,4 +1,4 @@
-import type { Monitor } from "../types/monitor";
+import type { CheckResult, Monitor } from "../types/monitor";
 
 const API_BASE_URL = "/api";
 
@@ -36,4 +36,15 @@ export async function deleteMonitor(id: number): Promise<void> {
   if (!response.ok) {
     throw new Error("Failed to delete monitor");
   }
+  
+}
+
+export async function getCheckResults(id: number): Promise<CheckResult[]> {
+  const response = await fetch(`${API_BASE_URL}/monitors/${id}/checks`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch check results");
+  }
+
+  return response.json();
 }

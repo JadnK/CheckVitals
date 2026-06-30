@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { MonitorDetails } from "./components/MonitorDetails";
 import { useEffect, useMemo, useState } from "react";
 import { createMonitor, deleteMonitor, getMonitors } from "./api/monitors";
 import type { Monitor, MonitorStatus } from "./types/monitor";
@@ -25,6 +26,7 @@ function formatDate(value: string | null) {
 
 function App() {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
+  const [selectedMonitor, setSelectedMonitor] = useState<Monitor | null>(null);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
@@ -54,7 +56,8 @@ function App() {
     const total = monitors.length;
     const online = monitors.filter((monitor) => monitor.currentStatus === "ONLINE").length;
     const offline = monitors.filter((monitor) => monitor.currentStatus === "OFFLINE").length;
-    const unknown = monitors.filter((monitor) => monitor.currentStatus === "UNKNOWN").length;
+    const pending = monitors.filter((monitor) => monitor.currentStatus === "PENDING").length;
+    const lagging = monitors.filter((monitor) => monitor.currentStatus === "LAGGING").length;
 
     const responseTimes = monitors
       .map((monitor) => monitor.lastResponseTimeMs)
@@ -69,7 +72,8 @@ function App() {
       total,
       online,
       offline,
-      unknown,
+      lagging,
+      pending,
       averageResponseTime,
     };
   }, [monitors]);
@@ -133,8 +137,8 @@ function App() {
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-            <p className="text-sm text-zinc-400">Unknown</p>
-            <p className="mt-2 text-3xl font-bold">{stats.unknown}</p>
+            <p className="text-sm text-zinc-400">Pending</p>
+            <p className="mt-2 text-3xl font-bold">{stats.pending}</p>
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
@@ -222,19 +226,34 @@ function App() {
                       <span>Last checked: {formatDate(monitor.lastCheckedAt)}</span>
                     </div>
                   </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setSelectedMonitor(monitor)}
+                      className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Details
+                    </button>
 
-                  <button
-                    onClick={() => handleDelete(monitor.id)}
-                    className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
-                  >
-                    Delete
-                  </button>
+                    <button
+                      onClick={() => handleDelete(monitor.id)}
+                      className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
+              
             </div>
           )}
         </section>
       </div>
+      {selectedMonitor && (
+  <MonitorDetails
+    monitor={selectedMonitor}
+    onClose={() => setSelectedMonitor(null)}
+  />
+)}
     </main>
   );
 }
