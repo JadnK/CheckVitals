@@ -1,5 +1,6 @@
 package de.jadenk.checkvitals.monitor;
 
+import de.jadenk.checkvitals.check.CheckResultRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import java.util.List;
 public class MonitorController {
 
     private final MonitorRepository monitorRepository;
+    private final CheckResultRepository checkResultRepository;
 
-    public MonitorController(MonitorRepository monitorRepository) {
+    public MonitorController(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository) {
         this.monitorRepository = monitorRepository;
+        this.checkResultRepository = checkResultRepository;
     }
 
     @GetMapping("/health")
@@ -52,7 +55,9 @@ public class MonitorController {
             return ResponseEntity.notFound().build();
         }
 
+        checkResultRepository.deleteByMonitorId(id);
         monitorRepository.deleteById(id);
+
         return ResponseEntity.noContent().build();
     }
 }
